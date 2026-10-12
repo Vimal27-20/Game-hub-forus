@@ -6,16 +6,36 @@
 :root{--bg:#08080d;--accent:#ff3d5a;--muted:#9a9ab0}
 *{box-sizing:border-box;margin:0}
 body{min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#2a1630,var(--bg) 65%);color:#f4f4f8;font-family:Outfit,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding:24px}
-.wrap{text-align:center;max-width:760px;width:100%}
+.wrap{text-align:center;max-width:820px;width:100%}
 h1{font-size:clamp(48px,9vw,96px);font-weight:900;color:var(--accent);letter-spacing:.05em}
-p{color:var(--muted);font-size:18px;margin:8px 0 36px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
-a{display:block;text-decoration:none;color:#fff;background:#161620;border:1px solid #2c2c3c;border-radius:20px;padding:28px 22px;transition:transform .15s,border-color .15s}
+p{color:var(--muted);font-size:18px;margin:8px 0 32px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+a{display:block;text-decoration:none;color:#fff;background:#161620;border:2px solid #2c2c3c;border-radius:22px;padding:30px 22px;transition:transform .15s,border-color .15s}
 a:hover,a:focus{transform:translateY(-3px);border-color:#fff;outline:none}
-a .e{font-size:64px}a b{display:block;font-size:24px;margin:8px 0 4px}a span{color:var(--muted);font-size:15px}
+a .e{font-size:68px}a b{display:block;font-size:26px;margin:8px 0 4px}a span{color:var(--muted);font-size:15px}
+a.rejoin{background:linear-gradient(135deg,#ff3d5a,#ff9a3d);border-color:transparent;grid-column:1/-1}
+a.rejoin span{color:#fff;opacity:.9}
+.foot{margin-top:28px;color:var(--muted);font-size:14px}
 </style></head>
 <body><div class="wrap"><h1>HUDDLE</h1><p>Party games on the big screen. Phones are the controllers.</p>
-<div class="grid">
-<a href="/tv" autofocus><div class="e">📺</div><b>This is the TV</b><span>Host a room and show the games</span></a>
-<a href="/play"><div class="e">📱</div><b>I'm a player</b><span>Join with the room code or QR</span></a>
-</div></div></body></html>
+<div class="grid" id="grid">
+<a href="/tv" id="tv"><div class="e">📺</div><b>Start on this TV</b><span>Show the games and the join code</span></a>
+<a href="/play"><div class="e">📱</div><b>Join with my phone</b><span>Scan the QR or type the room code</span></a>
+</div>
+<div class="foot">Tip: phones can also open the short link shown on the TV, like <b>this-site/ABCD</b></div></div>
+<script>
+// Rejoin shortcut for phones that were already in a room (spec 003 R2.1, R3.2)
+(function () {
+  try {
+    var code = localStorage.getItem('huddle-code');
+    if (!code || !localStorage.getItem('huddle-key-' + code) || !/^[A-Z]{4}$/.test(code)) return;
+    var a = document.createElement('a');
+    a.className = 'rejoin'; a.href = '/' + code;
+    a.innerHTML = '<div class="e">🔁</div><b>Rejoin room ' + code + '</b><span>Jump back into your game with your points</span>';
+    document.getElementById('grid').insertBefore(a, document.getElementById('grid').firstChild);
+    a.focus();
+  } catch (e) { /* storage blocked: the two buttons still work */ }
+  if (!document.querySelector('.rejoin')) document.getElementById('tv').focus();
+})();
+</script>
+</body></html>

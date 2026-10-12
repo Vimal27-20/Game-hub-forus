@@ -24,17 +24,34 @@ The TV and all the phones must be on the **same Wi-Fi** as the computer running 
 
 ## Games
 
-| Game | Type | Players | Phone controls |
-|---|---|---|---|
-| 💥 Bumper Brawl | Physics brawler: ram each other off a shrinking arena. Bumper posts appear in rounds 2 and 3. | 2–12 | Joystick + DASH |
-| 🕵️ Undercover | Secret roles: everyone gets the word except the spy. Players take turns giving clues, then vote. A caught spy can still steal the round by guessing the word. | 3–12 | Hold-to-reveal card, Done, vote |
-| 🧠 Quiz Clash | Speed trivia (45 questions, includes Irish ones). Faster answers and streaks score more. | 1–12 | 4 coloured answer buttons |
-| 🎨 Doodle Dash | One player draws on their phone, the drawing appears live on the TV, and everyone else guesses. | 2–12 | Drawing canvas / guess box |
-| 🪢 Tug Rally | Red vs Blue tug-of-war with rope physics, best of 3. | 2–12 | Big tap button |
+Eleven games in four groups. Each has its own settings, and rounds change arena, layout or rules so no two rounds play the same.
 
-Every game also has character select (12 characters, each taken once), session trophies, and automatic rejoin when a phone locks or refreshes.
+| Game | Group | What happens | Phone controls | Players |
+|---|---|---|---|---|
+| 💥 Bumper Brawl | Action | Ram rivals off a shrinking arena. Arenas: Classic, Ice Rink, Donut, Pinball, Gusty | Joystick + DASH | 2–12 |
+| 🐍 Light Trails | Action | Light cycles. Don't hit any trail. Modes: Wrap, Blocks, Closing In, Overdrive | Arrow pad + BOOST | 2–12 |
+| 🌋 Lava Rise | Action | Climb a tower as lava rises, and bonk heads. Crumbling, sliding, spring, icy and windy towers | Joystick + JUMP | 1–12 |
+| ⛳ Mini Golf Mayhem | Action | Everyone putts the same hole at once, and balls collide. 10 holes with bumpers, movers, slopes, sand and water | Drag back, release | 1–12 |
+| 🪢 Tug Rally | Action | Red vs Blue rope physics. Slippery, Golden Beats, Short Field and Mud rounds | Tap fast | 2–12 |
+| 🤠 Quick Draw | Action | Tap first when the real signal appears; fake-outs are fouls. Timed on each phone, so lag never decides | One big button | 2–12 |
+| 🧠 Quiz Clash | Brains | 182 questions in 7 categories: 4-choice, true/false and closest-number | Answer buttons, number pad | 1–12 |
+| 📏 Close Call | Brains | "How many…?" questions. Closest wins, exact hits get a bonus | Number pad | 1–12 |
+| 🕵️ Undercover | Social | Find the spy who doesn't know the secret word. 16 categories | Hold-to-reveal, vote | 3–12 |
+| 🎭 Fake Out | Social | Write a fake answer to a weird true fact, then spot the truth | Type, then vote | 3–12 |
+| 🎨 Doodle Dash | Creative | Draw on your phone, it appears live on the TV, and everyone guesses. 206 words in 3 levels | Canvas, guess box | 2–12 |
 
-**TV remote:** use ← → to browse, OK to play, and Back to quit to the lobby. Back in the lobby exits the app. The first player to join gets 👑 and can also pick games from their phone.
+Questions, words and facts don't repeat within a night.
+
+**Every game also has:**
+
+- **A pause menu.** Back on the TV pauses; Back again quits to the menu. The 👑 phone can pause, resume, restart or quit too.
+- **Rejoin.** Close the browser or lock the phone, open the link again, and you're back in the same game with your points (seats are kept for 15 minutes).
+- **Fast results.** A live score strip, a round scoreboard (OK to skip), and instant final results with a podium and awards.
+- **Tonight's standings.** Party points across every game played tonight (1st 5 · 2nd 3 · 3rd 2 · everyone else 1).
+- **Settings.** Room-wide game length, difficulty, sound and vibration, plus each game's own options (rounds, timers, arena size, speed…).
+
+**TV remote:** ← → ↑ ↓ to move, OK to select, Back to pause or go back. Back never leaves the website.
+**Phones:** scan the QR code, or open the short link shown on the TV (for example `huddle-hub-btwi.onrender.com/ABCD`).
 
 ## Play anywhere: host the hub
 
@@ -69,7 +86,9 @@ Phones never need an app: they always use the hosted `/play` page.
 ```
 server/app.js        relay: rooms, seats, reconnect keys, QR codes (no game logic)
 server/index.js      process entry
-public/tv.js         TV host: lobby, game runner (60 fps loop), results
+public/tv.js         TV shell: menus, remote navigation, Back trap, pause, results, standings
+public/runner.js     game runner: clock, fixed-step physics, timers, scores, rounds, no-repeat content
+public/content/      question, word and fact banks
 public/platform.js   TV platform adapter: remote keys, app exit, server URL
 public/play.js       phone controller: renders whatever UI the TV asks for
 public/games/*.js    one file per game, registered with Hub.register()
@@ -105,6 +124,7 @@ Hub.register({
 ```bash
 npm run dev     # restart on change
 npm run check   # lint + tests (run before every commit)
+npm run smoke   # drives the real TV and phone pages in headless Chrome, screenshots in smoke-out/
 ```
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for the spec-driven workflow and [CLAUDE.md](CLAUDE.md) for the architecture rules (it's also what Claude Code follows in this repo).

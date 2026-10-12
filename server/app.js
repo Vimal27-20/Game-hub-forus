@@ -12,7 +12,8 @@ const QRCode = require('qrcode');
 
 const MAX_PLAYERS = 12;
 const HOST_GRACE_MS = 10 * 60 * 1000; // room survives a TV disconnect this long
-const PLAYER_GRACE_MS = 3 * 60 * 1000; // a dropped phone keeps its seat this long
+const PLAYER_GRACE_MS = 15 * 60 * 1000; // a dropped phone keeps its seat this long (spec 003 R2.4)
+const RESERVED_CODES = new Set(['PLAY']); // 4-letter paths that are real routes
 
 function lanIP() {
   const all = [];
@@ -53,6 +54,8 @@ function createApp(opts = {}) {
   app.get('/', (req, res) => res.sendFile(path.join(pub, 'index.html')));
   app.get('/tv', (req, res) => res.sendFile(path.join(pub, 'tv.html')));
   app.get('/play', (req, res) => res.sendFile(path.join(pub, 'play.html')));
+  // Short join link: <site>/ABCD opens the controller with the code filled in (spec 003 R3.1)
+  app.get('/:code([A-Za-z]{4})', (req, res) => res.sendFile(path.join(pub, 'play.html')));
   app.get('/healthz', (req, res) => res.json({ ok: true, rooms: rooms.size }));
   app.use(express.static(pub));
 
@@ -85,7 +88,7 @@ function createApp(opts = {}) {
 
   function newCode() {
     let c;
-    do { c = Array.from({ length: 4 }, () => LETTERS[crypto.randomInt(LETTERS.length)]).join(''); } while (rooms.has(c));
+    do { c = Array.from({ length: 4 }, () => LETTERS[crypto.randomInt(LETTERS.length)]).join(''); } while (rooms.has(c) || RESERVED_CODES.has(c));
     return c;
   }
   const pubPlayers = room => [...room.players.values()].map(p => ({
@@ -228,4 +231,4 @@ function createApp(opts = {}) {
   return { app, server, io, rooms, port, publicUrl, close };
 }
 
-module.exports = { createApp, lanIP, MAX_PLAYERS };
+module.exports = { createApp, lanIP, MAX_PLAYERS, PLAYER_GRACE_MS, RESERVED_CODES };

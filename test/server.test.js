@@ -177,3 +177,23 @@ test('R7: room closes if the TV does not come back in time', async () => {
   await closed;
   assert.match((await joinAs(room.code, 'B')).res.error, /not found/);
 });
+
+// ---- spec 003
+test('003 R2.4: a dropped phone keeps its seat for 15 minutes by default', () => {
+  const { PLAYER_GRACE_MS } = require('../server/app');
+  assert.equal(PLAYER_GRACE_MS, 15 * 60 * 1000);
+});
+
+test('003 R3.1: the short link /ABCD serves the phone controller', async () => {
+  for (const path of ['/ABCD', '/wxyz']) {
+    const res = await fetch(t.url + path);
+    assert.equal(res.status, 200, path);
+    assert.match(await res.text(), /HUDDLE · Controller/);
+  }
+  assert.equal((await fetch(t.url + '/ABCDE')).status, 404);
+});
+
+test('003 R3.1: room codes never collide with real routes', () => {
+  const { RESERVED_CODES } = require('../server/app');
+  assert.ok(RESERVED_CODES.has('PLAY'));
+});

@@ -62,7 +62,7 @@ A group in one room wants to play party games on the TV without anyone installin
 ### R6 — Phone reconnect
 
 1. WHEN a phone rejoins with its `key` THE SYSTEM SHALL restore the same seat (id, name, character).
-2. IF a disconnected phone does not return within 3 minutes THEN THE SYSTEM SHALL free its seat.
+2. IF a disconnected phone does not return within 15 minutes THEN THE SYSTEM SHALL free its seat. (Raised from 3 minutes by spec 003 R2.4.)
 3. WHEN the same key connects from a second device THE SYSTEM SHALL kick the older socket.
 
 ### R7 — TV reconnect

@@ -27,6 +27,7 @@ npm run dev            # same, restarts on file changes
 npm run check          # lint + tests: run before every commit
 npm test               # node:test contract tests (test/*.test.js)
 npm run lint           # ESLint (correctness rules only)
+npm run smoke          # real TV + phone pages in headless Chrome (needs Chrome/Edge); screenshots in smoke-out/
 
 HUDDLE_SERVER_URL=https://<hub> npm run build:tv    # dist/webos, dist/tizen, dist/android
 npm run package:webos                                # .ipk via LG ares-cli (npx)
@@ -36,12 +37,22 @@ npm run icons                                        # re-render store PNGs from
 
 ## Architecture rules
 
-- **Game logic runs on the TV** (`public/tv.js` + `public/games/*.js`). The server (`server/app.js`) must stay a relay: rooms, seats, reconnect keys. Never add game rules to the server.
+- **Game logic runs on the TV** (`public/games/*.js`, inside `public/runner.js`). The server (`server/app.js`) must stay a relay: rooms, seats, reconnect keys. Never add game rules to the server.
+- **Three TV layers.** `tv.js` is the *shell* (menus, remote focus, Back trap, pause, results, standings). `runner.js` is the *engine* (clock, fixed 120 Hz `step`, game-time timers, scores, round scoreboards, settings, no-repeat content). It has no DOM or socket of its own, so tests run it in Node. `games/*.js` only talk to `ctx`.
 - **The socket protocol is a contract** documented in `specs/001-core-platform/design.md`. Any new event or `{ui:…}` message must be added there and covered by a test in `test/server.test.js` when it touches the server.
 - **One TV client for every platform.** Per-platform behaviour goes in `public/platform.js` (`window.HuddlePlatform`) and never in `if (webOS)` branches scattered through `tv.js` or the games. Store metadata lives in `platforms/<os>/` templates, filled from `package.json` → `"huddle"`.
 - **TV assets must use relative paths** (`tv.css`, not `/tv.css`) and must call the server through `HuddlePlatform.api()` / `HuddlePlatform.connect()`, because packaged apps load from `file://`. The build test fails on root-absolute paths.
 - **The phone page (`/play`) is always served by the hub.** It's never packaged.
-- **New games** are one file `public/games/<id>.js` calling `Hub.register({...})` (contract in spec 001, design § Game plug-in contract), plus one `<script>` line in `public/tv.html`. Use `ctx.after()` for timers so they're cleared when the game ends. Clean up in `destroy()`.
+- **New games** are one file `public/games/<id>.js` calling `Hub.register({...})`, plus one `<script>` line in `public/tv.html` and an id in `test/games.test.js`. The contract is spec 001 § Game plug-in contract plus spec 003 § Runner. Every game must:
+  - declare `category`, three `how` lines and `settings` (defaults from `{ quick, standard, long }`);
+  - score with `ctx.score(id, n)`, end rounds with `ctx.roundOver(title, next)`, and finish with `ctx.end({ awards })`;
+  - put physics in `step(h)` (fixed 1/120 s) with constants in one `TUNE` block scaled by `ctx.diff`;
+  - use `ctx.after()` for timers (never `setTimeout`), so pause freezes them;
+  - pick content with `ctx.pick(bank, list, n)` and round modifiers with `ctx.variant(pool)`, so nothing repeats;
+  - handle `onLeave` / `onRejoin`, re-sending the right controller UI or a "back next round" wait;
+  - keep the bottom 4.5 rem clear for the live score strip.
+- **Content** (questions, words, facts) lives in `public/content/*.js`, not in game files. `test/content.test.js` checks sizes and shapes.
+- **Back on the TV** goes through `back()` in `tv.js` only. The history trap means the browser's Back never leaves the page.
 
 ## Code style
 

@@ -1,160 +1,160 @@
-// QUIZ CLASH — fast trivia. Faster correct answers score more.
+// QUIZ CLASH — fast trivia: 4-choice, true/false and closest-number questions.
+// Spec: 001 R8, 003 (fresh content R6.1, styles R6.4, rejoin R2.3).
 Hub.register({
-  id: 'quiz', title: 'Quiz Clash', emoji: '🧠', genre: 'Trivia · Speed',
+  id: 'quiz', title: 'Quiz Clash', emoji: '🧠', genre: 'Trivia · Speed', category: 'brains',
   tagline: 'Rapid-fire trivia on the big screen. Answer fast for big points and keep your streak alive.',
-  min: 1, max: 12, time: '5 min', controls: '4 answer buttons', colors: ['#7b2ff7', '#f107a3'],
+  how: ['Read the question on the TV', 'Answer on your phone: faster answers score more', 'Number questions: the closest guess wins'],
+  min: 1, max: 12, time: '5 min', controls: 'Answer buttons + number pad', colors: ['#7b2ff7', '#f107a3'],
+  settings: [
+    { id: 'count', label: 'Questions', options: [8, 12, 16], def: { quick: 8, standard: 12, long: 16 } },
+    { id: 'timer', label: 'Answer time', options: [{ v: 10, label: '10 s' }, { v: 15, label: '15 s' }, { v: 20, label: '20 s' }], def: 15 },
+  ],
 
   create(ctx) {
-    // [question, correct, wrong, wrong, wrong]
-    const BANK = [
-      ['What is the largest planet in our solar system?', 'Jupiter', 'Saturn', 'Neptune', 'Earth'],
-      ['How many sides does a hexagon have?', '6', '5', '8', '7'],
-      ['What is the chemical symbol for gold?', 'Au', 'Ag', 'Gd', 'Go'],
-      ['The Cliffs of Moher are in which country?', 'Ireland', 'Scotland', 'Wales', 'Iceland'],
-      ['What is the capital of Australia?', 'Canberra', 'Sydney', 'Melbourne', 'Perth'],
-      ['Which is the largest ocean on Earth?', 'Pacific', 'Atlantic', 'Indian', 'Arctic'],
-      ['How many minutes are in a day?', '1,440', '1,240', '1,400', '1,640'],
-      ['Who painted the Mona Lisa?', 'Leonardo da Vinci', 'Michelangelo', 'Vincent van Gogh', 'Pablo Picasso'],
-      ['Which gas do plants absorb from the air?', 'Carbon dioxide', 'Oxygen', 'Nitrogen', 'Helium'],
-      ['What is the fastest land animal?', 'Cheetah', 'Lion', 'Pronghorn', 'Greyhound'],
-      ['How many players does a soccer team have on the pitch?', '11', '10', '9', '12'],
-      ['Which planet is known as the Red Planet?', 'Mars', 'Venus', 'Jupiter', 'Mercury'],
-      ['At what temperature in °F does water freeze?', '32', '0', '100', '212'],
-      ['What is the smallest prime number?', '2', '1', '3', '0'],
-      ['Which instrument has 88 keys?', 'Piano', 'Accordion', 'Organ', 'Harp'],
-      ['What is the longest river in Ireland?', 'River Shannon', 'River Liffey', 'River Boyne', 'River Suir'],
-      ['Waterford is world-famous for making what?', 'Crystal', 'Whiskey', 'Linen', 'Pottery'],
-      ['Which Irish city was founded by Vikings in 914?', 'Waterford', 'Galway', 'Kilkenny', 'Athlone'],
-      ['How many continents are there?', '7', '5', '6', '8'],
-      ['In which year did humans first land on the Moon?', '1969', '1959', '1972', '1965'],
-      ['How many legs does a spider have?', '8', '6', '10', '12'],
-      ['What is the largest animal ever known to have lived?', 'Blue whale', 'Argentinosaurus', 'African elephant', 'Megalodon'],
-      ['Which element has atomic number 1?', 'Hydrogen', 'Helium', 'Oxygen', 'Carbon'],
-      ['The Great Barrier Reef lies off which country?', 'Australia', 'Indonesia', 'Philippines', 'New Zealand'],
-      ['What is the square root of 144?', '12', '14', '11', '16'],
-      ['Which blood type is the universal donor?', 'O negative', 'AB positive', 'A negative', 'O positive'],
-      ['Which country gave the Statue of Liberty to the USA?', 'France', 'Britain', 'Spain', 'Italy'],
-      ['How many hearts does an octopus have?', '3', '1', '2', '8'],
-      ['What is the currency of Japan?', 'Yen', 'Won', 'Yuan', 'Ringgit'],
-      ['What is the tallest mountain above sea level?', 'Mount Everest', 'K2', 'Kilimanjaro', 'Mont Blanc'],
-      ['How many bones are in the adult human body?', '206', '186', '226', '306'],
-      ['The Titanic was built in which city?', 'Belfast', 'Southampton', 'Liverpool', 'Glasgow'],
-      ['What is the main ingredient in guacamole?', 'Avocado', 'Peas', 'Cucumber', 'Lime'],
-      ['Which Irish county is called the Rebel County?', 'Cork', 'Kerry', 'Mayo', 'Wexford'],
-      ['Roughly how fast does light travel?', '300,000 km/s', '30,000 km/s', '3,000 km/s', '3 million km/s'],
-      ['How many strings does a standard guitar have?', '6', '4', '5', '8'],
-      ['What is the largest desert on Earth?', 'Antarctic', 'Sahara', 'Gobi', 'Arabian'],
-      ['Who wrote "Romeo and Juliet"?', 'William Shakespeare', 'Charles Dickens', 'Jane Austen', 'Oscar Wilde'],
-      ['Which of these is a mammal?', 'Dolphin', 'Shark', 'Trout', 'Eel'],
-      ['How many days are in a leap year?', '366', '365', '364', '367'],
-      ['Which planet is closest to the Sun?', 'Mercury', 'Venus', 'Mars', 'Earth'],
-      ['What is the hardest natural substance?', 'Diamond', 'Quartz', 'Iron', 'Granite'],
-      ['Which language has the most native speakers?', 'Mandarin Chinese', 'English', 'Spanish', 'Hindi'],
-      ['What colour do you get by mixing blue and yellow?', 'Green', 'Purple', 'Orange', 'Brown'],
-      ['Which famous playwright and wit was born in Dublin in 1854?', 'Oscar Wilde', 'George Bernard Shaw', 'W. B. Yeats', 'Samuel Beckett'],
-    ];
-    const N = 10, QTIME = 15;
+    const C = window.HUDDLE_CONTENT;
+    const P = ctx.players, N = ctx.settings.count, QTIME = ctx.settings.timer, PER_ROUND = 4;
     const SLOTS = [
       { color: '#e21b3c', shape: '▲' }, { color: '#1368ce', shape: '◆' },
       { color: '#d89e00', shape: '●' }, { color: '#26890c', shape: '■' },
     ];
-    const P = ctx.players;
-    const st = Object.fromEntries(P.map(p => [p.id, { score: 0, streak: 0, ans: null, at: 0, gain: 0 }]));
-    const qs = shuffle(BANK).slice(0, N).map(([q, a, ...w]) => {
-      const opts = shuffle([a, ...w]);
-      return { q, opts, correct: opts.indexOf(a) };
-    });
-    let qi = -1, phase = 'intro', t = 3, tMax = 3, q;
-    const S = ctx.stage;
-    const live = () => P.filter(p => ctx.isConnected(p.id));
+    const TF = [{ color: '#26890c', shape: '✔' }, { color: '#e21b3c', shape: '✖' }];
+    const st = Object.fromEntries(P.map(p => [p.id, { ans: null, at: 0, gain: 0, streak: 0, best: 0, rightT: [], num: null }]));
 
+    // Build the question list: ~2 number questions, ~1 in 5 true/false, rest 4-choice. No repeats this session.
+    const nNum = Math.max(1, Math.round(N / 6));
+    const bank = ctx.pick('quiz', C.quiz, N - nNum, q => q.q);
+    const nums = ctx.pick('numbers', C.numbers, nNum);
+    const qs = bank.map(item => {
+      if ('tf' in item) return { kind: 'tf', c: item.c, q: item.q, opts: ['True', 'False'], correct: item.tf ? 0 : 1 };
+      const opts = ctx.shuffle([item.a].concat(item.w));
+      return { kind: 'choice', c: item.c, q: item.q, opts, correct: opts.indexOf(item.a) };
+    });
+    nums.forEach((x, i) => qs.splice(Math.min(qs.length, 3 + i * 5), 0, { kind: 'num', c: 'Closest number', q: x.q, a: x.a, unit: x.unit }));
+    let qi = -1, phase = 'q', t = 0, q = null;
+    const S = ctx.stage;
+    const slots = () => (q.kind === 'tf' ? TF : SLOTS);
+    const fmt = n => Number(n).toLocaleString('en-IE');
+
+    function uiFor(id) {
+      const s = st[id];
+      if (phase !== 'q') return null;
+      if (s.ans != null || s.num != null) return { ui: 'wait', big: '🔒', text: 'Locked in!', sub: q.kind === 'num' ? `${fmt(s.num)} ${q.unit}` : q.opts[s.ans] };
+      if (q.kind === 'num') return { ui: 'number', prompt: q.q, unit: q.unit, sub: 'Closest guess wins' };
+      return { ui: 'choices', prompt: `Question ${qi + 1} of ${qs.length}`, layout: q.kind === 'tf' ? 'list' : 'grid',
+        options: q.opts.map((o, i) => ({ id: i, label: o, color: slots()[i].color, shape: slots()[i].shape })), sub: 'Look at the TV for the question' };
+    }
     function next() {
       qi++;
-      if (qi >= qs.length) { phase = 'done'; return ctx.end(P.map(p => ({ id: p.id, score: st[p.id].score }))); }
-      q = qs[qi]; phase = 'q'; t = tMax = QTIME;
-      P.forEach(p => { st[p.id].ans = null; st[p.id].gain = 0; });
-      ctx.sendAll({ ui: 'choices', prompt: `Question ${qi + 1} of ${qs.length}`, layout: 'grid',
-        options: q.opts.map((o, i) => ({ id: i, label: o, color: SLOTS[i].color, shape: SLOTS[i].shape })), sub: 'Look at the TV for the question' });
+      if (qi >= qs.length) return finish();
+      q = qs[qi]; phase = 'q'; t = q.kind === 'num' ? QTIME + 10 : QTIME;
+      P.forEach(p => { Object.assign(st[p.id], { ans: null, num: null, gain: 0 }); ctx.send(p.id, uiFor(p.id)); });
       draw(); ctx.sfx('start');
     }
     function reveal() {
-      phase = 'reveal'; t = 4.5;
-      for (const p of P) {
-        const s = st[p.id];
-        if (s.ans === q.correct) {
-          s.streak++;
-          s.gain = Math.round(500 + 500 * Math.max(0, (QTIME - s.at)) / QTIME) + (s.streak >= 3 ? 100 : 0);
-          s.score += s.gain;
-          ctx.send(p.id, { ui: 'wait', big: '✅', text: `Correct! +${s.gain}`, sub: s.streak >= 3 ? `🔥 ${s.streak} in a row (+100 streak bonus)` : `Total ${s.score}`, vibrate: [40, 30, 40] });
-        } else {
-          s.streak = 0;
-          ctx.send(p.id, { ui: 'wait', big: s.ans == null ? '⌛' : '❌', text: s.ans == null ? 'Too slow!' : 'Not this time', sub: `Answer: ${q.opts[q.correct]}`, vibrate: 200 });
+      phase = 'reveal'; t = 3.2;
+      if (q.kind === 'num') {
+        const guesses = P.filter(p => st[p.id].num != null).map(p => ({ id: p.id, d: Math.abs(st[p.id].num - q.a) }))
+          .sort((a, b) => a.d - b.d);
+        const prizes = [1000, 700, 500];
+        let place = 0, prev = null;
+        guesses.forEach((g, i) => {
+          if (g.d !== prev) place = i; prev = g.d;
+          let pts = prizes[place] || (g.d <= q.a * 0.1 ? 300 : 100);
+          if (g.d === 0) pts += 500;
+          st[g.id].gain = pts; ctx.score(g.id, pts);
+        });
+      } else {
+        for (const p of P) {
+          const s = st[p.id];
+          if (s.ans === q.correct) {
+            s.streak++; s.best = Math.max(s.best, s.streak); s.rightT.push(s.at);
+            s.gain = Math.round(500 + 500 * Math.max(0, QTIME - s.at) / QTIME) + (s.streak >= 3 ? 100 : 0);
+            ctx.score(p.id, s.gain);
+          } else s.streak = 0;
         }
+      }
+      for (const p of P) {
+        const s = st[p.id], ok = s.gain > 0;
+        const answer = q.kind === 'num' ? `${fmt(q.a)} ${q.unit}` : q.opts[q.correct];
+        ctx.send(p.id, ok
+          ? { ui: 'wait', big: q.kind === 'num' ? '🎯' : '✅', text: `+${s.gain}`, sub: q.kind === 'num' ? `Answer: ${answer} · you said ${fmt(s.num)}` : s.streak >= 3 ? `🔥 ${s.streak} in a row` : 'Correct!', vibrate: [40, 30, 40] }
+          : { ui: 'wait', big: s.ans == null && s.num == null ? '⌛' : '❌', text: s.ans == null && s.num == null ? 'Too slow!' : 'Not this time', sub: `Answer: ${answer}`, vibrate: 200 });
       }
       ctx.sfx('good'); draw();
     }
-    function board() { phase = 'board'; t = 3.5; draw(); }
+    function afterReveal() {
+      if ((qi + 1) % PER_ROUND === 0 && qi + 1 < qs.length) ctx.roundOver(`After ${qi + 1} of ${qs.length} questions`, next);
+      else next();
+    }
+    function finish() {
+      phase = 'done';
+      const awards = [];
+      const fast = P.filter(p => st[p.id].rightT.length >= 2).map(p => ({ p, avg: st[p.id].rightT.reduce((a, b) => a + b, 0) / st[p.id].rightT.length }))
+        .sort((a, b) => a.avg - b.avg)[0];
+      if (fast) awards.push({ id: fast.p.id, emoji: '⚡', title: `Speed demon · ${fast.avg.toFixed(1)} s average` });
+      const hot = P.slice().sort((a, b) => st[b.id].best - st[a.id].best)[0];
+      if (hot && st[hot.id].best >= 3) awards.push({ id: hot.id, emoji: '🔥', title: `On fire · ${st[hot.id].best} in a row` });
+      ctx.end({ awards });
+    }
 
     function draw() {
-      const ans = i => P.filter(p => st[p.id].ans === i);
+      const answered = id => st[id].ans != null || st[id].num != null;
       let html = `<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 20% 0%,#7b2ff744,transparent 55%),radial-gradient(ellipse at 90% 100%,#f107a333,transparent 55%)"></div>
-        <div class="timer-bar" id="qBar"></div>`;
-      if (phase === 'intro') {
-        html += `<div class="g-center"><div style="font-size:8rem">🧠</div><div class="g-big">Quiz Clash</div><div class="g-sub">${qs.length} questions · answer on your phone · faster = more points</div></div>`;
-      } else if (phase === 'q' || phase === 'reveal') {
+        <div class="timer-bar" id="qBar"></div>
+        <div class="g-top"><div class="g-pill">Question ${qi + 1}/${qs.length} · ${esc(q.c)}</div>
+        <div style="display:flex;gap:.5rem">${P.map(p => `<div class="avatar" style="width:2.8rem;height:2.8rem;font-size:1.6rem;background:${p.color};opacity:${answered(p.id) ? 1 : 0.3}">${p.emoji}</div>`).join('')}</div>
+        <div class="g-pill" id="qT" style="font-size:2rem;min-width:5rem;text-align:center">${phase === 'q' ? Math.ceil(t) : '✓'}</div></div>
+        <div style="position:absolute;left:6rem;right:6rem;top:7.5rem;text-align:center;font-size:3.4rem;font-weight:800;line-height:1.15">${esc(q.q)}</div>`;
+      if (q.kind === 'num') {
+        if (phase === 'reveal') {
+          const list = P.filter(p => st[p.id].num != null).sort((a, b) => Math.abs(st[a.id].num - q.a) - Math.abs(st[b.id].num - q.a));
+          html += `<div class="g-center" style="top:12rem"><div class="g-big" style="color:#ffd85a">${fmt(q.a)} <span style="font-size:2rem">${esc(q.unit)}</span></div>
+            <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:2rem;font-size:1.6rem">${list.slice(0, 6).map(p => `<div><span class="avatar" style="width:2.4rem;height:2.4rem;font-size:1.4rem;background:${p.color}">${p.emoji}</span> ${esc(p.name)}: <b>${fmt(st[p.id].num)}</b> <span style="color:#3ddc84">+${st[p.id].gain}</span></div>`).join('')}</div></div>`;
+        } else html += `<div class="g-center" style="top:12rem"><div style="font-size:7rem">📏</div><div class="g-sub">Type your best guess${q.unit ? ` in ${esc(q.unit)}` : ''} · closest wins</div></div>`;
+      } else {
         const total = Math.max(1, P.filter(p => st[p.id].ans != null).length);
-        html += `<div class="g-top"><div class="g-pill">Question ${qi + 1}/${qs.length}</div><div class="g-pill" id="qT" style="font-size:2rem;min-width:5rem;text-align:center">${Math.ceil(t)}</div></div>
-          <div style="position:absolute;left:6rem;right:6rem;top:7rem;text-align:center;font-size:3.6rem;font-weight:800;line-height:1.15">${esc(q.q)}</div>
-          <div style="position:absolute;left:6rem;right:6rem;bottom:9rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem">
+        html += `<div style="position:absolute;left:6rem;right:6rem;bottom:7rem;display:grid;grid-template-columns:${q.kind === 'tf' ? '1fr 1fr' : '1fr 1fr'};gap:1.4rem">
           ${q.opts.map((o, i) => {
             const right = phase === 'reveal' && i === q.correct, dim = phase === 'reveal' && i !== q.correct;
-            const who = phase === 'reveal' ? ans(i) : [];
-            return `<div style="position:relative;background:${SLOTS[i].color};border-radius:1rem;padding:1.6rem 2rem;display:flex;align-items:center;gap:1.4rem;font-size:2.2rem;font-weight:800;opacity:${dim ? 0.3 : 1};${right ? 'box-shadow:0 0 0 .4rem #fff;transform:scale(1.03)' : ''};transition:all .3s;overflow:hidden">
-              <span style="font-size:2.6rem">${SLOTS[i].shape}</span><span style="flex:1">${esc(o)}</span>${right ? '<span>✔</span>' : ''}
+            const who = phase === 'reveal' ? P.filter(p => st[p.id].ans === i) : [];
+            return `<div style="position:relative;background:${slots()[i].color};border-radius:1rem;padding:1.6rem 2rem;display:flex;align-items:center;gap:1.4rem;font-size:2.2rem;font-weight:800;opacity:${dim ? 0.3 : 1};${right ? 'box-shadow:0 0 0 .4rem #fff;transform:scale(1.03)' : ''};transition:all .3s;overflow:hidden">
+              <span style="font-size:2.6rem">${slots()[i].shape}</span><span style="flex:1">${esc(o)}</span>${right ? '<span>✔</span>' : ''}
               ${phase === 'reveal' ? `<div style="position:absolute;left:0;bottom:0;height:.5rem;background:rgba(255,255,255,.7);width:${who.length / total * 100}%"></div>
               <span style="display:flex;gap:.2rem;font-size:1.6rem">${who.map(p => p.emoji).join('')}</span>` : ''}</div>`;
-          }).join('')}</div>
-          <div style="position:absolute;left:0;right:0;bottom:3rem;display:flex;justify-content:center;gap:.8rem">
-            ${P.map(p => `<div class="avatar" title="${esc(p.name)}" style="width:3.4rem;height:3.4rem;font-size:2rem;background:${p.color};opacity:${st[p.id].ans != null ? 1 : 0.3};transition:opacity .2s">${p.emoji}</div>`).join('')}</div>`;
-      } else if (phase === 'board') {
-        const sorted = P.slice().sort((a, b) => st[b.id].score - st[a.id].score);
-        const max = Math.max(1, st[sorted[0].id].score);
-        html += `<div class="g-center"><div class="g-sub" style="margin:0 0 2rem;letter-spacing:.25em;text-transform:uppercase;color:#f9a8ff">Leaderboard · after ${qi + 1} of ${qs.length}</div>
-          <div style="width:60rem;display:flex;flex-direction:column;gap:.8rem">
-          ${sorted.slice(0, 8).map((p, i) => `<div style="display:flex;align-items:center;gap:1rem;font-size:1.6rem;font-weight:700">
-            <div style="width:2rem;color:#999">${i + 1}</div><div class="avatar" style="width:3rem;height:3rem;font-size:1.8rem;background:${p.color}">${p.emoji}</div>
-            <div style="width:12rem;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</div>
-            <div style="flex:1;height:2.4rem;background:rgba(255,255,255,.06);border-radius:.5rem;overflow:hidden"><div style="height:100%;width:${st[p.id].score / max * 100}%;background:linear-gradient(90deg,${p.color},#fff3);border-radius:.5rem"></div></div>
-            <div style="width:7rem;text-align:right">${st[p.id].score}</div>
-            <div style="width:6rem;text-align:left;color:#3ddc84;font-size:1.2rem">${st[p.id].gain ? '+' + st[p.id].gain : ''}${st[p.id].streak >= 3 ? ' 🔥' : ''}</div></div>`).join('')}</div></div>`;
+          }).join('')}</div>`;
       }
       S.innerHTML = html;
     }
-    draw();
-    ctx.sendAll({ ui: 'wait', big: '🧠', text: 'Get ready!', sub: 'Answer buttons appear here' });
+
+    next();
 
     return {
       onInput(id, d) {
-        if (phase !== 'q' || d.t !== 'choice') return;
-        const s = st[id]; if (s.ans != null) return;
-        const i = +d.id; if (!(i >= 0 && i < 4)) return;
-        s.ans = i; s.at = QTIME - t;
-        ctx.sfx('tick');
-        ctx.send(id, { ui: 'wait', big: SLOTS[i].shape, text: 'Locked in!', sub: q.opts[i] });
-        draw();
-        if (live().every(p => st[p.id].ans != null)) t = Math.min(t, 0.6);
+        if (phase !== 'q') return;
+        const s = st[id];
+        if (q.kind === 'num') {
+          if (d.t !== 'number' || s.num != null) return;
+          const v = Number(d.v);
+          if (!isFinite(v)) return;
+          s.num = v;
+        } else {
+          if (d.t !== 'choice' || s.ans != null) return;
+          const i = +d.id; if (!(i >= 0 && i < q.opts.length)) return;
+          s.ans = i; s.at = QTIME - t;
+        }
+        ctx.sfx('tick'); ctx.send(id, uiFor(id)); draw();
+        if (ctx.live().every(p => st[p.id].ans != null || st[p.id].num != null)) t = Math.min(t, 0.6);
       },
+      onRejoin(id) { const m = uiFor(id); if (m) ctx.send(id, m); },
       update(dt) {
         t -= dt;
         const bar = document.getElementById('qBar');
-        if (bar) bar.style.width = (phase === 'q' ? Math.max(0, t / tMax * 100) : 0) + '%';
+        if (bar) bar.style.width = (phase === 'q' ? Math.max(0, t / (q.kind === 'num' ? QTIME + 10 : QTIME) * 100) : 0) + '%';
         const tt = document.getElementById('qT');
         if (tt) tt.textContent = phase === 'q' ? Math.max(0, Math.ceil(t)) : '✓';
         if (t > 0) return;
-        if (phase === 'intro') next();
-        else if (phase === 'q') reveal();
-        else if (phase === 'reveal') board();
-        else if (phase === 'board') next();
+        if (phase === 'q') reveal();
+        else if (phase === 'reveal') afterReveal();
       },
     };
   },

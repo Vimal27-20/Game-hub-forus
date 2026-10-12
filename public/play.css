@@ -116,3 +116,50 @@ canvas.board{width:100%;aspect-ratio:4/3;background:#fff;border-radius:14px;touc
 @keyframes spin{to{transform:rotate(360deg)}}
 .pulse{animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{transform:scale(1.08)}}
+
+/* ---------- spec 003: menu, sheets, pause, new controllers ---------- */
+.menuhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.iconbtn{width:48px;height:48px;border-radius:14px;background:var(--panel2);font-size:22px}
+.cat{font-weight:800;font-size:15px;letter-spacing:.06em;text-transform:uppercase;margin:16px 0 8px}
+.cat .muted{text-transform:none;letter-spacing:0;font-weight:600;font-size:13px;margin-left:6px}
+.gcard .tag{font-size:12px;background:rgba(0,0,0,.3);padding:1px 6px;border-radius:99px;vertical-align:middle}
+.back{color:var(--muted);font-weight:700;font-size:16px;padding:6px 0;margin-bottom:6px}
+.sheethead{border-radius:18px;padding:18px;display:flex;gap:14px;align-items:center}
+.sheethead .ge{font-size:56px}
+.sheethead .gt{font-weight:900;font-size:24px}
+.sheethead .gs{font-size:13px;opacity:.9;margin-top:2px}
+.howlist{margin:14px 0 6px 20px;color:#dcdce8;font-size:15px;line-height:1.45}
+.setlabel{font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin:14px 0 6px}
+.seg{display:flex;background:var(--panel);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;padding:12px 6px;border-radius:10px;font-weight:800;font-size:15px;color:var(--muted);min-height:48px}
+.seg button.on{background:#fff;color:#000}
+.btn.danger{background:#3a1820;color:#ff8a9a}
+#pauseBtn{background:var(--panel2);padding:6px 12px;border-radius:99px;font-size:13px;color:var(--text)}
+.award{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-weight:700}
+
+/* arrow pad */
+.dpadwrap{flex:1;display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center}
+.dpad{display:grid;grid-template-columns:repeat(3,min(26vw,110px));grid-template-rows:repeat(3,min(26vw,110px));gap:8px;touch-action:none}
+.dpad button{background:var(--panel2);border-radius:20px;font-size:40px;color:#fff;box-shadow:inset 0 -6px 0 rgba(0,0,0,.25)}
+.dpad button.down{background:var(--me);transform:translateY(3px)}
+.dpad .du{grid-column:2;grid-row:1}.dpad .dl{grid-column:1;grid-row:2}.dpad .dr{grid-column:3;grid-row:2}.dpad .dd{grid-column:2;grid-row:3}
+@media (orientation:landscape){ .dpadwrap{flex-direction:row;justify-content:space-around} }
+
+/* aim pad */
+.aimpad{position:relative;flex:1;min-height:260px;border-radius:24px;background:radial-gradient(circle,#1f3a2a,#13241a);border:3px solid var(--line);touch-action:none;overflow:hidden}
+.aimpad canvas{position:absolute;inset:0;width:100%;height:100%}
+.aimhint{position:absolute;left:0;right:0;bottom:14px;text-align:center;color:var(--muted);font-weight:700;font-size:14px;pointer-events:none}
+.power{height:14px;background:var(--panel);border-radius:99px;margin-top:10px;overflow:hidden}
+.power div{height:100%;width:0;background:linear-gradient(90deg,#3ddc84,#ffd85a,#ff4d4d)}
+
+/* quick draw */
+.reactbtn{flex:1;width:100%;border-radius:30px;background:#2a2a3a;color:#fff;font-size:72px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;touch-action:none;transition:background .05s}
+.reactbtn small{font-size:16px;font-weight:700;opacity:.85;padding:0 20px;text-align:center}
+.reactbtn.down{filter:brightness(.7)}
+
+/* number pad */
+.numshow{text-align:center;font-size:44px;font-weight:900;margin:4px 0 12px;word-break:break-all}
+.numshow small{font-size:18px;color:var(--muted)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.numpad button{background:var(--panel2);border-radius:16px;font-size:28px;font-weight:800;padding:16px 0;box-shadow:inset 0 -4px 0 rgba(0,0,0,.25)}
+.numpad button:active{transform:translateY(2px)}

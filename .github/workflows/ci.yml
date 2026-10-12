@@ -47,3 +47,23 @@ jobs:
           docker run -d -p 3000:3000 --name hub huddle-hub
           for i in $(seq 1 20); do curl -fsS localhost:3000/healthz && exit 0; sleep 1; done
           docker logs hub; exit 1
+
+  smoke:
+    name: Browser smoke test (TV + phone)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Drive the real TV and phone pages in headless Chrome
+        run: npm run smoke
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-screenshots
+          path: smoke-out/

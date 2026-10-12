@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-12 · Party Pack v2 (spec 003)
+
+### Added
+- Six new games: ⛳ Mini Golf Mayhem, 🐍 Light Trails, 🌋 Lava Rise, 🤠 Quick Draw, 🎭 Fake Out and 📏 Close Call.
+- TV main menu with Games / Settings / How to play tabs, games grouped by category, and a setup sheet for each game's settings.
+- Back on the TV pauses (Resume, Restart, Sound, Vibration, Quit), and Back again quits. A browser-history trap means Back never leaves the site.
+- The 👑 phone can pause, resume, restart, quit, skip scoreboards, change settings and pick the next game.
+- Rejoin mid-game: a returning phone goes straight back into the running game with its score. Seats are kept for 15 minutes.
+- Short join link `site/ABCD`, and a `/` chooser with a Rejoin button.
+- Live score strip, round scoreboards, awards, instant results with Play again / Next game / Menu, and tonight's standings that survive a TV reload.
+- Room settings (length, difficulty, sound, volume, vibration) and per-game settings, remembered on the TV.
+- Content banks: 182 quiz questions (true/false and closest-number styles), 66 number questions, 206 drawing words in 3 levels, 16 Undercover categories and 62 Fake Out facts. Nothing repeats within a night.
+- A game runner with fixed 120 Hz physics, game-time timers and smoothed input. Each round picks a different arena, mode or rule.
+- Tests: runner, content and bot playthroughs of all 11 games, plus `npm run smoke` (headless Chrome, TV and phone).
+
+### Changed
+- All five original games were rebuilt on the runner, with settings, round variants, awards and rejoin support.
+- The Lobby button on the phone is now Pause.
+
+## [1.1.0] - 2026-10-12 · Repository standards and TV store apps (spec 002)
+
 ### Added
 - TV store apps from one codebase: LG webOS, Samsung Tizen, and Android TV / Fire TV through Capacitor (spec 002).
 - `public/platform.js` adapter: remote Back/OK keys on every TV and platform-native app exit.

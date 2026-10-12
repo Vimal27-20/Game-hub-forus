@@ -32,6 +32,8 @@ Why this design:
 
 ## Interfaces
 
+> Extended by [spec 003](../003-party-pack-v2/design.md#protocol-additions): new UIs (`paused`, `aim`, `dpad`, `react`, `number`, `text`), new VIP `sys` actions, the `/CODE` short link, and the runner `ctx` (scores, round scoreboards, settings, no-repeat content, pause).
+
 ### Socket events
 
 | Direction | Event | Payload | Ack |

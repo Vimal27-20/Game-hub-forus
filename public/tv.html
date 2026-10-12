@@ -13,44 +13,76 @@
 <body>
 <div id="app">
 
-  <!-- LOBBY: Netflix-style browse screen -->
-  <section id="lobby" class="screen">
-    <div class="hero" id="hero">
-      <div class="hero-bg" id="heroBg"></div>
-      <div class="hero-art" id="heroArt"></div>
-      <div class="hero-copy">
+  <!-- MAIN MENU: tabs + games by category / settings / how to play (spec 003 R3.3) -->
+  <section id="menu" class="screen">
+    <div class="main">
+      <header class="topbar">
         <div class="brand">HUDDLE<span>games</span></div>
-        <div class="hero-genre" id="heroGenre"></div>
-        <h1 id="heroTitle"></h1>
-        <p id="heroTag"></p>
-        <div class="hero-meta" id="heroMeta"></div>
-        <div class="hero-cta" id="heroCta"></div>
+        <nav class="tabs" id="tabs">
+          <button class="tab-btn" data-tab="games">🎮 Games</button>
+          <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+          <button class="tab-btn" data-tab="help">❓ How to play</button>
+        </nav>
+      </header>
+
+      <div id="tab-games" class="tab">
+        <div class="hero" id="hero">
+          <div class="hero-bg" id="heroBg"></div>
+          <div class="hero-art" id="heroArt"></div>
+          <div class="hero-copy">
+            <div class="hero-genre" id="heroGenre"></div>
+            <h1 id="heroTitle"></h1>
+            <p id="heroTag"></p>
+            <div class="hero-meta" id="heroMeta"></div>
+            <div class="hero-cta" id="heroCta"></div>
+          </div>
+        </div>
+        <div class="rows" id="rows"></div>
       </div>
-    </div>
-    <div class="row">
-      <div class="row-title">Party games <small>← → to browse · OK to play · or pick on the 👑 phone</small></div>
-      <div class="tiles" id="tiles"></div>
+
+      <div id="tab-settings" class="tab hidden">
+        <div class="panel-title">Room settings</div>
+        <p class="panel-sub">Used by every game. Each game also has its own settings when you pick it.</p>
+        <div class="setlist" id="roomSettings"></div>
+      </div>
+
+      <div id="tab-help" class="tab hidden">
+        <div class="help" id="help"></div>
+      </div>
     </div>
 
     <aside class="join">
       <div class="join-head">Scan to join</div>
       <div class="qr"><img id="qr" alt="QR code to join"></div>
-      <div class="join-url">or go to <b id="joinUrl">…</b></div>
+      <div class="join-url">or open <b id="joinUrl">…</b></div>
       <div class="join-code-label">Room code</div>
       <div class="join-code" id="roomCode">····</div>
-      <div class="join-players-head"><span>Players</span><b id="pcount">0/12</b></div>
+      <div class="join-players-head"><span>Players · tonight</span><b id="pcount">0/12</b></div>
       <div class="slots" id="slots"></div>
     </aside>
+  </section>
+
+  <!-- GAME SETUP: per-game settings, Start focused (R4.2) -->
+  <section id="setup" class="overlay hidden">
+    <div class="sheet" id="setupSheet"></div>
   </section>
 
   <!-- GAME -->
   <section id="game" class="screen hidden">
     <canvas id="cv"></canvas>
     <div id="stage"></div>
+    <div id="strip"></div>
     <div class="game-corner" id="gameCorner"></div>
+    <div id="intro" class="overlay hidden"><div class="sheet intro" id="introSheet"></div></div>
+    <div id="board" class="overlay hidden"><div class="sheet board" id="boardSheet"></div></div>
   </section>
 
-  <!-- RESULTS -->
+  <!-- PAUSE (R1.2) -->
+  <section id="pause" class="overlay hidden">
+    <div class="sheet pause" id="pauseSheet"></div>
+  </section>
+
+  <!-- RESULTS (R5.3–R5.6) -->
   <section id="results" class="screen hidden"></section>
 
   <div id="toasts"></div>
@@ -61,11 +93,23 @@
 <script src="config.js"></script>
 <script src="platform.js"></script>
 <script src="shared.js"></script>
+<script src="content/quiz.js"></script>
+<script src="content/numbers.js"></script>
+<script src="content/words.js"></script>
+<script src="content/spy.js"></script>
+<script src="content/fakeout.js"></script>
+<script src="runner.js"></script>
 <script src="games/bumper.js"></script>
-<script src="games/spy.js"></script>
-<script src="games/quiz.js"></script>
-<script src="games/doodle.js"></script>
+<script src="games/trails.js"></script>
+<script src="games/lava.js"></script>
+<script src="games/golf.js"></script>
 <script src="games/tug.js"></script>
+<script src="games/quickdraw.js"></script>
+<script src="games/quiz.js"></script>
+<script src="games/closecall.js"></script>
+<script src="games/spy.js"></script>
+<script src="games/fakeout.js"></script>
+<script src="games/doodle.js"></script>
 <script src="tv.js"></script>
 </body>
 </html>
