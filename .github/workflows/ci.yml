@@ -62,7 +62,7 @@ jobs:
         run: npm run smoke
         env:
           CHROME_PATH: /usr/bin/google-chrome
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: smoke-screenshots

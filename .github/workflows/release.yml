@@ -35,7 +35,7 @@ jobs:
           cd dist
           zip -qr huddle-tizen-web.zip tizen
           zip -qr huddle-android-web.zip android
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: tv-bundles
           path: |
