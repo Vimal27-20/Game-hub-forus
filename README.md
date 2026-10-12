@@ -38,6 +38,8 @@ Every game also has character select (12 characters, each taken once), session t
 
 ## Play anywhere: host the hub
 
+**Live hub:** https://huddle-hub-btwi.onrender.com. Open `/tv` on any TV browser, and phones scan the QR code from any network.
+
 For the store apps (or to play without a laptop), deploy the hub once and set `PUBLIC_URL`:
 
 | Option | How |

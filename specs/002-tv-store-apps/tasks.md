@@ -20,7 +20,10 @@
 
 - [ ] 7. Decide final app identity in `package.json` → `huddle` and in `capacitor.config.json` — _R6.1_
   - These are permanent after the first publish.
-- [ ] 8. Deploy the hub (Render, Fly or Railway) with `PUBLIC_URL` set; confirm `GET /healthz` works over HTTPS — _R7_
+- [x] 8. Deploy the hub (Render, Fly or Railway) with `PUBLIC_URL` set; confirm `GET /healthz` works over HTTPS — _R7_
+  - Live at https://huddle-hub-btwi.onrender.com (Render free plan, from `render.yaml`).
+  - **Verified 2026-10-12:** `/healthz`, `/api/info` (https base), `/api/qr`, CORS `*`; a live socket round trip (host create → phone join → input → host message); and the packaged `dist/webos` loaded from `file://` showed the room code, QR code and join URL.
+  - Before store release: switch to a paid always-on plan (the free plan sleeps after 15 min idle).
 - [ ] 9. On-device QA on each platform — _R3, R4, R5_
   - [ ] LG webOS (Developer Mode app): install, join with 2 phones, play one game, Back in game → lobby, Back in lobby → exits.
   - [ ] Samsung Tizen (Developer Mode): same checklist.
