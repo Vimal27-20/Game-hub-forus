@@ -7,6 +7,7 @@ const http = require('http');
 const os = require('os');
 const crypto = require('crypto');
 const express = require('express');
+const compression = require('compression');
 const { Server } = require('socket.io');
 const QRCode = require('qrcode');
 
@@ -40,6 +41,7 @@ function createApp(opts = {}) {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', true);
+  app.use(compression()); // the Word Grid dictionary is ~750 KB raw, ~200 KB gzipped
   const server = http.createServer(app);
   const io = new Server(server, { pingInterval: 10000, pingTimeout: 8000, cors: { origin: origins } });
 

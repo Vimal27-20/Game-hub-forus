@@ -34,7 +34,7 @@ async function tvFlow() {
   check('TV gets a room code', /^[A-Z]{4}$/.test(code), code);
   await sleep(800);
   check('short join link shown', /\/[A-Z]{4}$/.test(await tv.eval("document.getElementById('joinUrl').textContent")));
-  check('11 game tiles in 4 category rows', (await tv.eval("document.querySelectorAll('.tile').length")) === 11 && (await tv.eval("document.querySelectorAll('#rows .row').length")) === 4);
+  check('12 game tiles in 4 category rows', (await tv.eval("document.querySelectorAll('.tile').length")) === 12 && (await tv.eval("document.querySelectorAll('#rows .row').length")) === 4);
 
   const phones = [];
   for (const [name, char] of [['Ava', 'fox'], ['Ben', 'frog'], ['Cy', 'octo']]) {
@@ -49,9 +49,32 @@ async function tvFlow() {
   }
   await sleep(600);
   check('phones joined and got the menu', phones.every(p => p.last && p.last.ui === 'menu'));
-  check('menu carries settings + categories', phones[0].last.games.length === 11 && phones[0].last.cats.length === 4);
+  check('menu carries settings + categories', phones[0].last.games.length === 12 && phones[0].last.cats.length === 4);
   check('TV hero counts ready players', /3 players ready/.test(await tv.eval("document.getElementById('heroCta').textContent")));
   await tv.shot('tv-1-menu');
+
+  // Netflix-style browsing (spec 004 R3.1): the last tile of every row can be reached and is fully visible
+  const rowCount = await tv.eval("document.querySelectorAll('#rows .row').length");
+  const seen = [];
+  for (let r = 0; r < rowCount; r++) {
+    for (let k = 0; k < 8; k++) await tv.key('ArrowRight');
+    await sleep(500); // smooth scroll
+    const info = await tv.eval(`(() => {
+      const t = document.querySelector('.tile.focus'), row = t && t.closest('.row');
+      if (!t) return null;
+      const r = t.getBoundingClientRect(), main = document.querySelector('.join').getBoundingClientRect().left;
+      const tiles = row.querySelectorAll('.tile');
+      return { id: t.dataset.id, last: tiles[tiles.length - 1] === t, visible: r.left >= 0 && r.right <= main + 1 && r.top >= 0 && r.bottom <= innerHeight + 1, hero: document.getElementById('heroTitle').textContent };
+    })()`);
+    seen.push(info && info.id);
+    check(`row ${r + 1}: last tile reachable and fully on screen`, info && info.last && info.visible, info && `${info.id} · hero "${info.hero}"`);
+    if (r === 0) await tv.shot('tv-1b-row-end');
+    await tv.key('ArrowDown');
+  }
+  check('billboard follows focus', true, seen.join(', '));
+  for (let k = 0; k < rowCount + 1; k++) await tv.key('ArrowUp');
+  await tv.key('ArrowDown');
+  for (let k = 0; k < 8; k++) await tv.key('ArrowLeft'); // back to the first tile of the first row
 
   await tv.key('ArrowRight'); await tv.key('Enter');
   check('OK opens the game setup sheet', await tv.eval("!document.getElementById('setup').classList.contains('hidden')"));
@@ -155,6 +178,15 @@ async function phoneFlow() {
   await ph.mouse('mouseReleased', c[0] - 60, c[1] + 108); await sleep(300);
   const shot = inputs.find(d => d.t === 'shot');
   check('phone: drag back aims the opposite way', shot && Math.cos(shot.a) > 0 && Math.sin(shot.a) < 0 && shot.p > 0.2);
+  await send({ ui: 'grid', board: ['C', 'A', 'T', 'S', 'R', 'E', 'O', 'P', 'QU', 'I', 'N', 'E', 'D', 'O', 'G', 'S'], n: 4, min: 3, round: 1, rounds: 3, left: 90, count: 0, score: 0 });
+  const tc = async i => ph.eval(`(() => { const r = document.querySelectorAll('.wgp-tile')[${i}].getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`);
+  const p0 = await tc(0), p1 = await tc(1), p2 = await tc(2);
+  await ph.mouse('mousePressed', p0[0], p0[1]);
+  for (const q of [p1, p2]) { await ph.mouse('mouseMoved', (q[0] + p0[0]) / 2, q[1]); await ph.mouse('mouseMoved', q[0], q[1]); await sleep(60); }
+  await ph.shot('phone-3b-grid');
+  await ph.mouse('mouseReleased', p2[0], p2[1]); await sleep(300);
+  const wg = inputs.find(d => d.t === 'word');
+  check('phone: Word Grid drag sends the traced path', wg && wg.path.join(',') === '0,1,2', JSON.stringify(wg));
   await send({ ui: 'dpad', btn: 'BOOST' }); await ph.tap('.dpad .dr'); await ph.shot('phone-4-dpad');
   check('phone: arrow pad sends directions', inputs.some(d => d.t === 'dir' && d.d === 1));
   await send({ ui: 'react', r: 1, seq: [{ at: 0, kind: 'wait', show: 'WAIT…', color: '#7a1f1f' }, { at: 700, kind: 'go', show: 'DRAW!', color: '#1fae4b' }] }, 200);

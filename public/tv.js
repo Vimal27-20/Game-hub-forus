@@ -10,7 +10,7 @@
     { id: 'action', name: 'Action', sub: 'Physics & reflexes' }, { id: 'brains', name: 'Brains', sub: 'Trivia & numbers' },
     { id: 'social', name: 'Social', sub: 'Bluff & deduce' }, { id: 'creative', name: 'Creative', sub: 'Draw & guess' },
   ];
-  const NEW = ['golf', 'trails', 'lava', 'quickdraw', 'fakeout', 'closecall'];
+  const NEW = ['golf', 'trails', 'lava', 'quickdraw', 'fakeout', 'closecall', 'wordgrid'];
   const ROOM_OPTS = {
     length: { label: 'Game length', options: [['quick', 'Quick'], ['standard', 'Standard'], ['long', 'Long']] },
     difficulty: { label: 'Difficulty', options: [['chill', 'Chill'], ['normal', 'Normal'], ['wild', 'Wild']] },
@@ -269,16 +269,20 @@
     ['games', 'settings', 'help'].forEach(t => $('tab-' + t).classList.toggle('hidden', t !== S.tab));
   }
   function renderRows() {
-    $('rows').innerHTML = `<div class="rows-inner" id="rowsInner">${CATS.map(c => {
+    $('rows').innerHTML = `<div id="rowsInner">${CATS.map(c => {
       const list = games.filter(g => g.category === c.id);
       if (!list.length) return '';
-      return `<div class="row" data-cat="${c.id}"><div class="row-title">${c.name} <small>${c.sub}</small></div><div class="tiles">${list.map(g => {
+      return `<div class="row" data-cat="${c.id}"><div class="row-title">${c.name} <small>${c.sub} · ${list.length} game${list.length > 1 ? 's' : ''}</small></div><button class="row-arrow l" aria-label="Scroll left">‹</button><button class="row-arrow r" aria-label="Scroll right">›</button><div class="tiles">${list.map(g => {
         const played = session.played.indexOf(g.id) >= 0;
         return `<div class="tile" data-id="${g.id}" style="background:linear-gradient(135deg,${g.colors[0]},${g.colors[1]})">
           <div class="t-name">${esc(g.title)}</div><div class="t-emoji">${g.emoji}</div><div class="t-sub">${g.min}–${g.max} players</div>
           ${played ? '<div class="t-done">✓ played</div>' : NEW.indexOf(g.id) >= 0 ? '<div class="t-new">NEW</div>' : ''}</div>`;
       }).join('')}</div></div>`;
     }).join('')}</div>`;
+    // pointer remotes / mouse: ‹ › scroll a row by most of its width (R3.2)
+    $('rows').querySelectorAll('.row-arrow').forEach(b => {
+      b.onclick = e => { e.stopPropagation(); const t = b.parentElement.querySelector('.tiles'); t.scrollBy({ left: (b.classList.contains('l') ? -1 : 1) * t.clientWidth * 0.8, behavior: 'smooth' }); };
+    });
   }
   function renderHero() {
     const g = games[S.focusGame];
@@ -393,7 +397,7 @@
       document.querySelectorAll('#rows .row').forEach(rowEl => {
         rows.push([...rowEl.querySelectorAll('.tile')].map(el => {
           const def = games.find(g => g.id === el.dataset.id);
-          return { el, ok: () => openSetup(def), focus: () => { S.focusGame = games.indexOf(def); renderHero(); scrollRows(rowEl); } };
+          return { el, ok: () => openSetup(def), focus: () => { S.focusGame = games.indexOf(def); renderHero(); scrollRows(rowEl, el); } };
         }));
       });
       if (r == null) { // land on the focused game's tile
@@ -411,9 +415,15 @@
     }
     return setNav([tabs], 0, 2);
   }
-  function scrollRows(rowEl) {
-    const inner = $('rowsInner'); if (!inner) return;
-    inner.style.transform = `translateY(${-Math.max(0, rowEl.offsetTop - 4)}px)`;
+  // Netflix-style: the focused row slides up under the billboard; the focused tile scrolls into view (R3.1).
+  function scrollRows(rowEl, tile) {
+    const rows = $('rows');
+    rows.scrollTo({ top: Math.max(0, rowEl.offsetTop - 4), behavior: 'smooth' });
+    if (!tile) return;
+    const strip = tile.parentElement, pad = tile.offsetWidth * 0.6;
+    const left = tile.offsetLeft, right = left + tile.offsetWidth, view = strip.scrollLeft, w = strip.clientWidth;
+    if (left - pad < view) strip.scrollTo({ left: Math.max(0, left - pad), behavior: 'smooth' });
+    else if (right + pad > view + w) strip.scrollTo({ left: right + pad - w, behavior: 'smooth' });
   }
 
   // ----------------------------------------------------------- Back + keys (R1.1, R1.3, R1.5)

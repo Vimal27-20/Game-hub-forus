@@ -5,9 +5,9 @@ const assert = require('node:assert/strict');
 const { loadWorld, playthrough } = require('./harness');
 
 const w = loadWorld();
-const EXPECTED = ['bumper', 'tug', 'quiz', 'spy', 'doodle', 'golf', 'trails', 'lava', 'quickdraw', 'fakeout', 'closecall'];
+const EXPECTED = ['bumper', 'tug', 'quiz', 'spy', 'doodle', 'golf', 'trails', 'lava', 'quickdraw', 'fakeout', 'closecall', 'wordgrid'];
 
-test('003 R7.1: all eleven games are registered with the full definition', () => {
+test('003 R7.1: all twelve games are registered with the full definition', () => {
   const ids = w.Hub.games.map(g => g.id);
   for (const id of EXPECTED) assert.ok(ids.includes(id), `missing game ${id}`);
   for (const g of w.Hub.games) {

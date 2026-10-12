@@ -1,6 +1,6 @@
 {
   "name": "huddle-game-hub",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "TV-hosted party game hub. The TV is the host, phones are the controllers.",
   "license": "MIT",
@@ -21,7 +21,8 @@
     "build:android": "node scripts/build-tv.mjs android && npx cap sync android",
     "package:webos": "npm run build:webos && npx --yes -p @webos-tools/cli@3 ares-package dist/webos -o dist",
     "icons": "node scripts/make-icons.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "dict": "node scripts/build-dict.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -33,6 +34,7 @@
     "tizenPackageId": "HDLhub2720"
   },
   "dependencies": {
+    "compression": "^1.8.2",
     "express": "^4.21.2",
     "qrcode": "^1.5.4",
     "socket.io": "^4.8.1"
@@ -43,9 +45,11 @@
     "@capacitor/cli": "^8.5.3",
     "@capacitor/core": "^8.5.3",
     "@eslint/js": "^10.0.1",
+    "badwords-list": "^2.0.1-4",
     "eslint": "^10.12.0",
     "globals": "^17.13.0",
     "jsdom": "^27.4.0",
-    "socket.io-client": "^4.8.4"
+    "socket.io-client": "^4.8.4",
+    "wordlist-english": "^1.2.1"
   }
 }

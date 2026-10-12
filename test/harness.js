@@ -75,6 +75,17 @@ function makeBot(id, w, act) {
         if (since >= react.at && react.d) { done = true; act(react.d); }
       } else if (ui === 'number' && !done && since > rnd(0.5, 3)) { done = true; act({ t: 'number', v: Math.round(rnd(1, 3000)) }); }
       else if (ui === 'text' && !done && since > rnd(0.5, 3)) { done = true; act({ t: 'text', text: 'bot lie ' + (Math.random() * 1000 | 0) }); }
+      else if (ui === 'grid' && every <= 0) { // random walk of touching tiles
+        every = rnd(0.2, 0.6);
+        const n = msg.n, path = [Math.random() * n * n | 0];
+        for (let k = 0; k < 2 + (Math.random() * 3 | 0); k++) {
+          const last = path[path.length - 1], opts = [];
+          for (let i = 0; i < n * n; i++) if (path.indexOf(i) < 0 && Math.abs((i / n | 0) - (last / n | 0)) <= 1 && Math.abs(i % n - last % n) <= 1) opts.push(i);
+          if (!opts.length) break;
+          path.push(opts[Math.random() * opts.length | 0]);
+        }
+        act({ t: 'word', path });
+      }
     },
   };
 }

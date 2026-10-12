@@ -18,6 +18,7 @@
     joined: false, picking: false, focusGame: null, err: '', sheet: null, menu: null,
   };
   let cleanups = [];
+  let gridFeedback = null; // set while the Word Grid controller is open
   const cleanup = () => { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; };
   const out = d => socket.emit('in', d);
   const sys = (a, extra) => out(Object.assign({ t: 'sys', a }, extra));
@@ -58,6 +59,7 @@
     if (!msg) return;
     if (msg.vibrate) buzz(msg.vibrate);
     if (msg.note) note(msg.note);
+    if (msg.wg && gridFeedback) gridFeedback(msg.wg);
     if (msg.focus) { S.focusGame = msg.focus; document.querySelectorAll('.gcard').forEach(c => c.classList.toggle('focus', c.dataset.id === msg.focus)); }
     if (msg.ui) {
       if (msg.ui === 'menu') S.menu = msg; else S.sheet = null;
@@ -172,6 +174,67 @@
 
   const UI = {
     wait: viewWait,
+
+    // Word Grid (spec 004): drag across touching letters and let go, or tap letters then Submit.
+    grid(m) {
+      const n = m.n, endAt = Date.now() + (m.left || 0) * 1000, mine = [];
+      let path = [], dragging = false, dragged = false;
+      view.innerHTML = `<div class="wgp-head"><b id="wgLeft"></b><span id="wgStat">${m.count} words · ${m.score} pts</span></div>
+        <div class="wgp-word" id="wgWord">&nbsp;</div>
+        <div class="wgp-board" id="wgB" style="grid-template-columns:repeat(${n},1fr)">${m.board.map((l, i) => `<div class="wgp-tile" data-i="${i}"><span>${l === 'QU' ? 'Qu' : esc(l)}</span></div>`).join('')}<svg id="wgSvg"></svg></div>
+        <div class="wgp-actions"><button class="tool" id="wgClear">Clear</button><button class="btn" id="wgGo">Submit</button></div>
+        <div class="wgp-found" id="wgFound"></div>`;
+      const board = $('wgB'), tiles = [...board.querySelectorAll('.wgp-tile')], svg = $('wgSvg');
+      const adj = (a, b) => a !== b && Math.abs((a / n | 0) - (b / n | 0)) <= 1 && Math.abs(a % n - b % n) <= 1;
+      const word = () => path.map(i => m.board[i]).join('');
+      const canAdd = i => path.indexOf(i) < 0 && (!path.length || adj(path[path.length - 1], i));
+      function hit(e) { // only the inner circle of a tile counts, so diagonal swipes don't clip neighbours
+        const el = document.elementFromPoint(e.clientX, e.clientY), t = el && el.closest && el.closest('.wgp-tile');
+        if (!t || !board.contains(t)) return null;
+        const r = t.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+        return Math.hypot(dx, dy) < r.width * 0.42 ? +t.dataset.i : null;
+      }
+      function paint() {
+        tiles.forEach((t, i) => { t.classList.toggle('on', path.indexOf(i) >= 0); t.classList.toggle('last', path[path.length - 1] === i); });
+        $('wgWord').textContent = path.length ? word() : ' ';
+        const br = board.getBoundingClientRect();
+        svg.setAttribute('viewBox', `0 0 ${br.width} ${br.height}`);
+        svg.innerHTML = path.length > 1 ? `<polyline points="${path.map(i => { const r = tiles[i].getBoundingClientRect(); return (r.left - br.left + r.width / 2) + ',' + (r.top - br.top + r.height / 2); }).join(' ')}" />` : '';
+      }
+      function submit() {
+        const w = word();
+        if (w.length < m.min) { if (path.length) note(`Words need ${m.min}+ letters`); path = []; return paint(); }
+        out({ t: 'word', path: path.slice() }); buzz(15);
+        path = []; paint();
+      }
+      board.onpointerdown = e => {
+        e.preventDefault(); board.setPointerCapture(e.pointerId);
+        const i = hit(e); dragging = true; dragged = false;
+        if (i == null) return;
+        if (path.length && path[path.length - 1] === i) { path.pop(); return paint(); } // tap the last letter again to undo it
+        if (!canAdd(i)) path = [];
+        path.push(i); buzz(6); paint();
+      };
+      board.onpointermove = e => {
+        if (!dragging) return;
+        const i = hit(e); if (i == null) return;
+        if (path.length > 1 && path[path.length - 2] === i) { path.pop(); dragged = true; return paint(); } // slide back to undo
+        if (canAdd(i)) { path.push(i); dragged = true; buzz(6); paint(); }
+      };
+      board.onpointerup = board.onpointercancel = () => { if (dragging && dragged) submit(); dragging = false; };
+      $('wgGo').onclick = submit;
+      $('wgClear').onclick = () => { path = []; paint(); };
+      const tick = () => { const s = Math.max(0, Math.ceil((endAt - Date.now()) / 1000)); $('wgLeft').textContent = `⏱ ${s}s`; $('wgLeft').classList.toggle('hot', s <= 10); };
+      tick(); const iv = setInterval(tick, 250);
+      gridFeedback = r => {
+        $('wgStat').textContent = `${r.count} words · ${r.score} pts`;
+        const why = { unknown: 'Not in the dictionary', again: 'Already found', short: 'Too short', path: 'Letters must touch' }[r.reason];
+        if (r.ok) { mine.unshift(r.word); buzz([20, 30, 20]); }
+        $('wgWord').innerHTML = r.ok ? `<span class="ok">${esc(r.word.toUpperCase())} +${r.pts}</span>` : `<span class="bad">${esc((r.word || '').toUpperCase())} · ${why}</span>`;
+        $('wgFound').innerHTML = mine.slice(0, 40).map(w => `<span>${esc(w)}</span>`).join('');
+      };
+      cleanups.push(() => { clearInterval(iv); gridFeedback = null; });
+    },
 
     // Menu (R3.5): VIP gets games by category, a game sheet with settings, and room settings.
     menu(m) {

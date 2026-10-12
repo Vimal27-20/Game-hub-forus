@@ -24,7 +24,7 @@ The TV and all the phones must be on the **same Wi-Fi** as the computer running 
 
 ## Games
 
-Eleven games in four groups. Each has its own settings, and rounds change arena, layout or rules so no two rounds play the same.
+Twelve games in four groups. Each has its own settings, and rounds change arena, layout or rules so no two rounds play the same.
 
 | Game | Group | What happens | Phone controls | Players |
 |---|---|---|---|---|
@@ -36,6 +36,7 @@ Eleven games in four groups. Each has its own settings, and rounds change arena,
 | 🤠 Quick Draw | Action | Tap first when the real signal appears; fake-outs are fouls. Timed on each phone, so lag never decides | One big button | 2–12 |
 | 🧠 Quiz Clash | Brains | 182 questions in 7 categories: 4-choice, true/false and closest-number | Answer buttons, number pad | 1–12 |
 | 📏 Close Call | Brains | "How many…?" questions. Closest wins, exact hits get a bonus | Number pad | 1–12 |
+| 🔠 Word Grid | Brains | One letter grid for everyone, Boggle-Party style: trace words on your phone. Longer words score more, and words only you found score double. 4×4 or 5×5, 79k-word dictionary | Trace letters | 1–12 |
 | 🕵️ Undercover | Social | Find the spy who doesn't know the secret word. 16 categories | Hold-to-reveal, vote | 3–12 |
 | 🎭 Fake Out | Social | Write a fake answer to a weird true fact, then spot the truth | Type, then vote | 3–12 |
 | 🎨 Doodle Dash | Creative | Draw on your phone, it appears live on the TV, and everyone guesses. 206 words in 3 levels | Canvas, guess box | 2–12 |
@@ -50,7 +51,7 @@ Questions, words and facts don't repeat within a night.
 - **Tonight's standings.** Party points across every game played tonight (1st 5 · 2nd 3 · 3rd 2 · everyone else 1).
 - **Settings.** Room-wide game length, difficulty, sound and vibration, plus each game's own options (rounds, timers, arena size, speed…).
 
-**TV remote:** ← → ↑ ↓ to move, OK to select, Back to pause or go back. Back never leaves the website.
+**TV remote:** ← → ↑ ↓ to move, OK to select, Back to pause or go back. Back never leaves the website. The menu browses like Netflix: rows slide up under the billboard, and each row scrolls sideways. Pointer remotes and mice can scroll and use the ‹ › arrows.
 **Phones:** scan the QR code, or open the short link shown on the TV (for example `huddle-hub-btwi.onrender.com/ABCD`).
 
 ## Play anywhere: host the hub

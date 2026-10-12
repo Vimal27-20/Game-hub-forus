@@ -163,3 +163,19 @@ canvas.board{width:100%;aspect-ratio:4/3;background:#fff;border-radius:14px;touc
 .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .numpad button{background:var(--panel2);border-radius:16px;font-size:28px;font-weight:800;padding:16px 0;box-shadow:inset 0 -4px 0 rgba(0,0,0,.25)}
 .numpad button:active{transform:translateY(2px)}
+
+/* Word Grid (spec 004) */
+.wgp-head{display:flex;justify-content:space-between;font-weight:800;font-size:16px;color:var(--muted)}
+.wgp-head b{color:var(--text)} .wgp-head b.hot{color:#ff6b6b}
+.wgp-word{text-align:center;font-size:30px;font-weight:900;letter-spacing:.08em;min-height:44px;margin:6px 0}
+.wgp-word .ok{color:var(--good)} .wgp-word .bad{color:#ff7a7a;font-size:20px}
+.wgp-board{position:relative;display:grid;gap:8px;touch-action:none;user-select:none;-webkit-user-select:none;background:#2a1607;padding:8px;border-radius:18px}
+.wgp-tile{aspect-ratio:1;border-radius:12px;background:linear-gradient(#fff8ec,#f1dcc0);color:#2a1607;display:grid;place-items:center;font-weight:900;font-size:min(9vw,40px);box-shadow:inset 0 -4px 0 rgba(0,0,0,.15);transition:transform .08s}
+.wgp-tile.on{background:var(--me);color:#fff;transform:scale(.94)}
+.wgp-tile.last{box-shadow:0 0 0 4px #fff}
+.wgp-board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.wgp-board polyline{fill:none;stroke:rgba(255,255,255,.75);stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.wgp-actions{display:flex;gap:10px;margin-top:10px;align-items:center}
+.wgp-actions .btn{margin:0}
+.wgp-found{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wgp-found span{background:var(--panel2);border-radius:99px;padding:4px 10px;font-weight:700;font-size:13px}
