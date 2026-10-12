@@ -18,7 +18,9 @@ export async function launch({ port, outDir }) {
   const bin = CANDIDATES.find(p => existsSync(p));
   if (!bin) throw new Error('Chrome/Edge not found. Set CHROME_PATH.');
   const profile = mkdtempSync(join(tmpdir(), 'huddle-smoke-'));
-  const proc = spawn(bin, ['--headless=new', '--disable-gpu', '--no-first-run', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
+  // Linux CI runners (Ubuntu 24.04) block Chrome's sandbox via AppArmor; the page is our own, so it's safe there.
+  const ci = process.platform === 'linux' && process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : [];
+  const proc = spawn(bin, ['--headless=new', '--disable-gpu', '--no-first-run', ...ci, `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' });
   let target;
   for (let i = 0; i < 50 && !target; i++) {
     await sleep(200);

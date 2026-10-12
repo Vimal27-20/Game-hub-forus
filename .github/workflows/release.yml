@@ -14,8 +14,8 @@ jobs:
   tv-bundles:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -35,7 +35,7 @@ jobs:
           cd dist
           zip -qr huddle-tizen-web.zip tizen
           zip -qr huddle-android-web.zip android
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: tv-bundles
           path: |
@@ -43,7 +43,7 @@ jobs:
             dist/*.zip
       - name: Attach to GitHub release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
           files: |

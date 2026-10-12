@@ -16,7 +16,9 @@ const OUT = join(root, 'smoke-out');
 mkdirSync(OUT, { recursive: true });
 
 let failed = 0;
-const check = (name, ok, info) => { console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${info ? '  · ' + info : ''}`); if (!ok) failed++; };
+const oneLine = m => String(m).split(String.fromCharCode(10)).join(' | ');
+const gh = msg => { if (process.env.GITHUB_ACTIONS) console.log(`::error title=smoke::${oneLine(msg)}`); }; // visible as a CI annotation
+const check = (name, ok, info) => { console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${info ? '  · ' + info : ''}`); if (!ok) { failed++; gh(`${name} ${info || ''}`); } };
 
 const hub = createApp({ port: 0, publicUrl: '' });
 await new Promise(r => hub.server.listen(0, '127.0.0.1', r));
@@ -177,7 +179,7 @@ async function phoneFlow() {
   tvSock.close(); other.close(); ph.close();
 }
 
-try { await tvFlow(); await phoneFlow(); } catch (e) { console.error(e); failed++; }
+try { await tvFlow(); await phoneFlow(); } catch (e) { console.error(e); gh(e && e.stack || e); failed++; }
 await hub.close();
 console.log(failed ? `\n${failed} smoke check(s) failed` : `\nAll smoke checks passed · screenshots in smoke-out/`);
 process.exit(failed ? 1 : 0);
