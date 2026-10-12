@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HUDDLE</string>
+    <string name="title_activity_main">HUDDLE</string>
+    <string name="package_name">io.github.vimal2720.huddle</string>
+    <string name="custom_url_scheme">io.github.vimal2720.huddle</string>
+</resources>

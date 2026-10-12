@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HUDDLE · TV</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0b12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tv.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- LOBBY: Netflix-style browse screen -->
+  <section id="lobby" class="screen">
+    <div class="hero" id="hero">
+      <div class="hero-bg" id="heroBg"></div>
+      <div class="hero-art" id="heroArt"></div>
+      <div class="hero-copy">
+        <div class="brand">HUDDLE<span>games</span></div>
+        <div class="hero-genre" id="heroGenre"></div>
+        <h1 id="heroTitle"></h1>
+        <p id="heroTag"></p>
+        <div class="hero-meta" id="heroMeta"></div>
+        <div class="hero-cta" id="heroCta"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="row-title">Party games <small>← → to browse · OK to play · or pick on the 👑 phone</small></div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+
+    <aside class="join">
+      <div class="join-head">Scan to join</div>
+      <div class="qr"><img id="qr" alt="QR code to join"></div>
+      <div class="join-url">or go to <b id="joinUrl">…</b></div>
+      <div class="join-code-label">Room code</div>
+      <div class="join-code" id="roomCode">····</div>
+      <div class="join-players-head"><span>Players</span><b id="pcount">0/12</b></div>
+      <div class="slots" id="slots"></div>
+    </aside>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="screen hidden">
+    <canvas id="cv"></canvas>
+    <div id="stage"></div>
+    <div class="game-corner" id="gameCorner"></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="screen hidden"></section>
+
+  <div id="toasts"></div>
+  <div id="offline" class="hidden">Reconnecting to the server…</div>
+</div>
+
+<script src="socket.io/socket.io.js"></script>
+<script src="config.js"></script>
+<script src="platform.js"></script>
+<script src="shared.js"></script>
+<script src="games/bumper.js"></script>
+<script src="games/spy.js"></script>
+<script src="games/quiz.js"></script>
+<script src="games/doodle.js"></script>
+<script src="games/tug.js"></script>
+<script src="tv.js"></script>
+</body>
+</html>

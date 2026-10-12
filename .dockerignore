@@ -1,0 +1,10 @@
+node_modules
+dist
+android
+assets
+platforms
+specs
+test
+.git
+.github
+*.md

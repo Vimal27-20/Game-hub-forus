@@ -1,0 +1,21 @@
+name: Feature or new game
+description: Propose a feature, game or platform. Accepted proposals become a spec in specs/.
+labels: [enhancement, needs-spec]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / player story
+      description: As a <player / host / maintainer>, I want … so that …
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Proposed behaviour
+      description: What the TV shows, what the phones show, what the remote does.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: How do we know it's done?
+      description: Draft acceptance criteria (WHEN … THE SYSTEM SHALL …) if you can.

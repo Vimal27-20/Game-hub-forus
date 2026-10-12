@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="{{appId}}" version="{{version}}" viewmodes="maximized">
+  <tizen:application id="{{tizenPackageId}}.Huddle" package="{{tizenPackageId}}" required_version="5.5"/>
+  <tizen:profile name="tv-samsung"/>
+  <name>{{appName}}</name>
+  <author>{{vendor}}</author>
+  <icon src="icon.png"/>
+  <content src="index.html"/>
+  <access origin="{{serverOrigin}}" subdomains="true"/>
+  <access origin="https://fonts.googleapis.com" subdomains="false"/>
+  <access origin="https://fonts.gstatic.com" subdomains="false"/>
+  <tizen:privilege name="http://tizen.org/privilege/internet"/>
+  <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
+  <tizen:content-security-policy>default-src 'self'; connect-src 'self' {{serverOrigin}} wss://{{serverHost}}; img-src 'self' data: {{serverOrigin}}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'</tizen:content-security-policy>
+</widget>

@@ -1,0 +1,49 @@
+{
+  "name": "huddle-game-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TV-hosted party game hub. The TV is the host, phones are the controllers.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vimal27-20/Game-hub-forus.git"
+  },
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "lint": "eslint .",
+    "test": "node --test --test-reporter=spec \"test/**/*.test.js\"",
+    "check": "npm run lint && npm test",
+    "build:tv": "node scripts/build-tv.mjs all",
+    "build:webos": "node scripts/build-tv.mjs webos",
+    "build:tizen": "node scripts/build-tv.mjs tizen",
+    "build:android": "node scripts/build-tv.mjs android && npx cap sync android",
+    "package:webos": "npm run build:webos && npx --yes -p @webos-tools/cli@3 ares-package dist/webos -o dist",
+    "icons": "node scripts/make-icons.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "huddle": {
+    "appId": "io.github.vimal2720.huddle",
+    "appName": "HUDDLE",
+    "vendor": "Vimal Kumar Veeraragavan",
+    "tizenPackageId": "HDLhub2720"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
+    "socket.io-client": "^4.8.4"
+  }
+}

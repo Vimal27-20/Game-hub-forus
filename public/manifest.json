@@ -1,0 +1,9 @@
+{
+  "name": "HUDDLE Game Hub",
+  "short_name": "HUDDLE",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#0b0b12",
+  "theme_color": "#0b0b12",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

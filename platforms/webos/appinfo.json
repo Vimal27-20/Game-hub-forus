@@ -1,0 +1,14 @@
+{
+  "id": "{{appId}}",
+  "version": "{{version}}",
+  "vendor": "{{vendor}}",
+  "type": "web",
+  "main": "index.html",
+  "title": "{{appName}}",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "splashBackground": "splash.png",
+  "bgColor": "#0b0b12",
+  "resolution": "1920x1080",
+  "disableBackHistoryAPI": true
+}

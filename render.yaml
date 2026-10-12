@@ -1,0 +1,15 @@
+# One-click deploy on Render (render.com → New → Blueprint → this repo).
+# After the first deploy, set PUBLIC_URL to the service URL (https://<name>.onrender.com).
+services:
+  - type: web
+    name: huddle-hub
+    runtime: node
+    plan: free # free instances sleep when idle (slow first launch); use starter for store releases
+    buildCommand: npm ci --omit=dev --ignore-scripts
+    startCommand: node server/index.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PUBLIC_URL
+        sync: false

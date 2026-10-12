@@ -1,0 +1,51 @@
+# Builds store bundles when a version tag is pushed (git tag v1.2.3 && git push --tags).
+# Requires the repository variable HUDDLE_SERVER_URL (Settings → Secrets and variables → Actions → Variables).
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tv-bundles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - name: Check tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        run: test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+      - name: Build TV bundles
+        run: npm run build:tv
+        env:
+          HUDDLE_SERVER_URL: ${{ vars.HUDDLE_SERVER_URL }}
+      - name: Package webOS .ipk
+        run: npx --yes -p @webos-tools/cli@3 ares-package dist/webos -o dist
+      - name: Zip Tizen and Android web bundles
+        run: |
+          cd dist
+          zip -qr huddle-tizen-web.zip tizen
+          zip -qr huddle-android-web.zip android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tv-bundles
+          path: |
+            dist/*.ipk
+            dist/*.zip
+      - name: Attach to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*.ipk
+            dist/*.zip

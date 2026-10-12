@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+coverage/
+*.ipk
+*.wgt
+*.aab
+*.apk
+
+# Secrets and signing (never commit)
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pem
+author.p12
+distributor.p12
+
+# Logs and OS / editor files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
